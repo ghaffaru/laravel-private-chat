@@ -9,6 +9,8 @@ class Session extends Model
 {
     use HasFactory;
 
+    protected $guarded = ['id'];
+
     public function chats()
     {
         return $this->hasManyThrough(Chat::class, Message::class);
