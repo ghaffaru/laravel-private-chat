@@ -8,6 +8,7 @@
                         <b-list-group>
                             <b-list-group-item v-for="friend in friends" :key="friend.id">
                                 <a href="" @click.prevent="openChat(friend)">{{ friend.name }}</a>
+                                <b-icon-circle-fill style="float:right;" variant="success" v-if="friend.online"></b-icon-circle-fill>
                             </b-list-group-item>
                         </b-list-group>
                     </b-card-body>
@@ -56,6 +57,22 @@ export default {
     },
     mounted() {
         this.getFriends();
+        Echo.join('online')
+            .here(users => {
+                this.friends.forEach(f => {
+                    users.forEach(user => {
+                        if (user.id === f.id) f.online = true;
+                    })
+                })
+            })
+            .joining(user => {
+                let friend = this.friends.find(f => f.id === user.id)
+                friend.online = true;
+            })
+            .leaving(user => {
+                let friend = this.friends.find(f => f.id === user.id)
+                friend.online = false;
+            })
     }
 }
 </script>
