@@ -57,6 +57,10 @@ export default {
     },
     mounted() {
         this.getFriends();
+        Echo.channel('chat').listen('SessionEvent', e => {
+            let friend = this.friends.find(f => f.id === e.session_by);
+            friend.session = e.session;
+        });
         Echo.join('online')
             .here(users => {
                 this.friends.forEach(f => {
