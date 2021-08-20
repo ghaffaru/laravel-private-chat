@@ -41,9 +41,12 @@ export default {
 
             })
         },
+
         openChat(friend) {
-            if (friend.session?.open) {
-                this.friends.forEach(f => f.session.open = false);
+            if (friend.session) {
+                this.friends.forEach(f => {
+                    f.session ? f.session.open = false : ''
+                });
                 friend.session.open = true;
             } else {
                 axios.post('/create-session', {friend_id: friend.id})

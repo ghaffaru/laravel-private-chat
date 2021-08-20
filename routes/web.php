@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SessionController;
 use Illuminate\Support\Facades\Route;
@@ -27,3 +28,5 @@ require __DIR__.'/auth.php';
 
 Route::get('/friends', [HomeController::class, 'friends']);
 Route::post('/create-session', [SessionController::class, 'create']);
+Route::post('/chat', [ChatController::class, 'chat']);
+Route::get('/chats/{session}', [ChatController::class, 'chats']);

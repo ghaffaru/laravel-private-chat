@@ -18,15 +18,15 @@
             </b-card-header>
 
             <b-card-body  class="chat-box" v-chat-scroll>
-                <b-card-text v-for="message in messages" :key="message">
-                    {{ message }}
+                <b-card-text v-for="message in messages" :key="message.id" :class="{'text-right': message.type == 0}">
+                    {{ message.message }}
                 </b-card-text>
             </b-card-body>
 
             <b-form @submit.prevent="send">
                 <b-card-footer>
                     <b-form-group>
-                        <b-form-input type="text" placeholder="Type your message" v-model="message" :disabled="blocked"></b-form-input>
+                        <b-form-input type="text" placeholder="Type your message" v-model="message" :disabled="blocked" @click="send"></b-form-input>
                     </b-form-group>
 
                 </b-card-footer>
@@ -46,14 +46,35 @@ export default {
         }
     },
     methods: {
+        getChats() {
+            axios.get(`/chats/${this.friend.session.id}`)
+                .then(res => {
+                    this.messages = res.data.data;
+                })
+        },
+
         send() {
             if (this.message.length) {
-                this.messages.push(this.message);
+                this.messages.push({message: this.message, type: 0});
+                axios.post(`/chat/`, {
+                    'session_id': this.friend.session.id,
+                    'message': this.message,
+                    'receiver_id': this.friend.id
+                }).then(res => {
+                    console.log(res.data)
+                    this.message = ''
+                })
+                .catch(err => {
+                    console.log(err.response.data)
+                })
             }
         },
         closeChat(friend) {
             this.$emit('closeChat', friend);
         }
+    },
+    mounted() {
+        this.getChats();
     }
 }
 </script>
