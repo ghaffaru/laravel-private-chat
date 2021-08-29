@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\SessionEvent;
 use App\Http\Resources\SessionResource;
 use App\Models\Session;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,5 +26,15 @@ class SessionController extends Controller
             return new SessionResource($session);
         }
 
+    }
+
+    public function read(Session $session)
+    {
+        $chats = $session->chats->where('read_at', null)->where('type', 0)->where('user_id', '!=', auth()->id());
+
+        foreach ($chats as $chat)
+        {
+            $chat->update(['read_at' => Carbon::now()]);
+        }
     }
 }

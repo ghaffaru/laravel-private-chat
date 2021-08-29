@@ -39,16 +39,28 @@ export default {
         getFriends() {
             axios.get('/friends').then(res => {
                 this.friends = res.data.data;
-
+                this.friends.forEach(friend => {
+                    if (friend.session) {
+                        this.listenForEverySession(friend)
+                    }
+                })
             })
         },
-
+        listenForEverySession(friend) {
+            Echo.private(`chat.${friend.session.id}`)
+                .listen('PrivateChatEvent', e => {
+                    if (!friend.session.open) {
+                        friend.session.unReadCount++;
+                    }
+                })
+        },
         openChat(friend) {
             if (friend.session) {
                 this.friends.forEach(f => {
                     f.session ? f.session.open = false : ''
                 });
                 friend.session.open = true;
+                friend.session.unReadCount = 0;
             } else {
                 axios.post('/create-session', {friend_id: friend.id})
                     .then(res => {
@@ -61,9 +73,11 @@ export default {
     },
     mounted() {
         this.getFriends();
+
         Echo.channel('chat').listen('SessionEvent', e => {
             let friend = this.friends.find(f => f.id === e.session_by);
             friend.session = e.session;
+            this.listenForEverySession(friend);
         });
         Echo.join('online')
             .here(users => {

@@ -71,13 +71,19 @@ export default {
         },
         closeChat(friend) {
             this.$emit('closeChat', friend);
+        },
+        read() {
+            axios.patch(`/session/${this.friend.session.id}/mark-as-read`)
+                .then(res => console.log(res));
         }
     },
     mounted() {
+        this.read();
         this.getChats();
 
         Echo.private(`chat.${this.friend.session.id}`)
             .listen('PrivateChatEvent', e => {
+                this.read();
                 this.messages.push({message: e.content, type: 1 })
             })
     }
