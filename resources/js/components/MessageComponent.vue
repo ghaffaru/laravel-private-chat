@@ -75,6 +75,11 @@ export default {
     },
     mounted() {
         this.getChats();
+
+        Echo.private(`chat.${this.friend.session.id}`)
+            .listen('PrivateChatEvent', e => {
+                this.messages.push({message: e.content, type: 1 })
+            })
     }
 }
 </script>

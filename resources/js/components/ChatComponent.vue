@@ -7,7 +7,8 @@
                     <b-card-body>
                         <b-list-group>
                             <b-list-group-item v-for="friend in friends" :key="friend.id">
-                                <a href="" @click.prevent="openChat(friend)">{{ friend.name }}</a>
+                                <a href="" @click.prevent="openChat(friend)">{{ friend.name }}
+                                <span class="text-danger" v-if="friend.session && friend.session.unReadCount > 0">{{ friend.session.unReadCount }}</span></a>
                                 <b-icon-circle-fill style="float:right;" variant="success" v-if="friend.online"></b-icon-circle-fill>
                             </b-list-group-item>
                         </b-list-group>

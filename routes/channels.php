@@ -24,3 +24,12 @@ Broadcast::channel('online', function ($user) {
 Broadcast::channel('chat', function ($user) {
     return $user;
 });
+
+Broadcast::channel('chat.{session_id}', function ($user, $session_id) {
+
+    $session = \App\Models\Session::find((int)$session_id);
+    if ((int)$user->id === (int)$session->user1_id || (int)$user->id === (int)$session->user2_id) {
+        return true;
+    }
+    return false;
+});
