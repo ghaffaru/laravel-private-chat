@@ -13,7 +13,7 @@
                     <b-dropdown-item @click="blocked = true" v-if="!blocked">Block</b-dropdown-item>
 
                     <b-dropdown-item @click="blocked = false" v-else>Unblock</b-dropdown-item>
-                    <b-dropdown-item @click="messages = []">Clear</b-dropdown-item>
+                    <b-dropdown-item @click="clearChats">Clear</b-dropdown-item>
                 </b-dropdown>
             </b-card-header>
 
@@ -78,6 +78,11 @@ export default {
         read() {
             axios.patch(`/session/${this.friend.session.id}/mark-as-read`)
                 .then(res => console.log(res));
+        },
+        clearChats() {
+            this.messages = [];
+            axios.get(`/session/${this.friend.session.id}/clear`)
+                .then(res => console.log(res))
         }
     },
     mounted() {

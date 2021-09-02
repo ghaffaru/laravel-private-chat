@@ -36,4 +36,11 @@ class ChatController extends Controller
     {
         return ChatResource::collection($session->chats->where('user_id', auth()->id()));
     }
+
+    public function clear(Session $session)
+    {
+       $session->deleteChats();
+       $session->chats->count() == 0 ? $session->deleteMessages(): '';
+       return response('cleared', 200);
+    }
 }

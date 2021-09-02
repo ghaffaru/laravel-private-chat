@@ -31,3 +31,4 @@ Route::post('/create-session', [SessionController::class, 'create']);
 Route::post('/chat', [ChatController::class, 'chat']);
 Route::get('/chats/{session}', [ChatController::class, 'chats']);
 Route::patch('/session/{session}/mark-as-read', [SessionController::class, 'read']);
+Route::get('/session/{session}/clear', [ChatController::class, 'clear']);
