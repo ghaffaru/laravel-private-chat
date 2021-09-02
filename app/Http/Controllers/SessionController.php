@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageReadEvent;
 use App\Events\SessionEvent;
+use App\Http\Resources\ChatResource;
 use App\Http\Resources\SessionResource;
 use App\Models\Session;
 use Carbon\Carbon;
@@ -35,6 +37,7 @@ class SessionController extends Controller
         foreach ($chats as $chat)
         {
             $chat->update(['read_at' => Carbon::now()]);
+            broadcast(new MessageReadEvent(new ChatResource($chat)));
         }
     }
 }

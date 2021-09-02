@@ -18,8 +18,10 @@
             </b-card-header>
 
             <b-card-body  class="chat-box" v-chat-scroll>
-                <b-card-text v-for="message in messages" :key="message.id" :class="{'text-right': message.type == 0}">
-                    {{ message.message }}
+                <b-card-text v-for="message in messages" :key="message.id" :class="{'text-right': message.type == 0, 'text-success': message.read_at != null && message.type == 0}">
+                    <span>{{ message.message }}</span><br>
+                    <span style="font-size: 8px">{{ message.read_at}}</span>
+<!--                    <span>{{ message.message }}</span>-->
                 </b-card-text>
             </b-card-body>
 
@@ -55,13 +57,14 @@ export default {
 
         send() {
             if (this.message.length) {
-                this.messages.push({message: this.message, type: 0});
+                this.messages.push({message: this.message, type: 0, read_at: null});
                 axios.post(`/chat/`, {
                     'session_id': this.friend.session.id,
                     'message': this.message,
                     'receiver_id': this.friend.id
                 }).then(res => {
                     console.log(res.data)
+                    this.messages[this.messages.length - 1].id = res.data.chat.id;
                     this.message = ''
                 })
                 .catch(err => {
@@ -83,8 +86,15 @@ export default {
 
         Echo.private(`chat.${this.friend.session.id}`)
             .listen('PrivateChatEvent', e => {
-                this.read();
+                this.friend.session.open ? this.read() : '';
                 this.messages.push({message: e.content, type: 1 })
+            })
+
+        Echo.private(`chat.${this.friend.session.id}`)
+            .listen('MessageReadEvent', e => {
+                this.messages.forEach(msg => {
+                    msg.id === e.chat.id ? msg.read_at = e.chat.read_at : '';
+                })
             })
     }
 }

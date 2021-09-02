@@ -28,7 +28,7 @@ class ChatController extends Controller
             'type' => 1
         ]);
         broadcast(new PrivateChatEvent($request->message, $chat));
-        return response()->json(['status' => true]);
+        return response()->json(['status' => true, 'chat' => $chat]);
 
     }
 
