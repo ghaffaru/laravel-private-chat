@@ -1,7 +1,7 @@
 <template>
         <b-card>
             <b-card-header>
-                {{ friend.name }}
+                {{ friend.name }}<span v-if="isTyping"> is typing...</span>
                  <span v-if="blocked" style="color: red">(Blocked)</span>
                 <b-icon-x style="float: right" @click="closeChat(friend)"></b-icon-x>
 
@@ -43,13 +43,24 @@ export default {
     data() {
         return {
             message: '',
-            messages: []
+            messages: [],
+            isTyping: false
         }
     },
     computed: {
         blocked() {
             return this.friend.session.blocked;
         }
+    },
+    watch: {
+      message(value) {
+          if (value.length > 0) {
+              Echo.private(`chat.` + this.friend.session.id)
+                .whisper('typing', {
+                    id: this.auth
+                })
+          }
+      }
     },
     methods: {
         getChats() {
@@ -99,6 +110,7 @@ export default {
                 .then(res => this.friend.session.blocked_by_id = null);
         }
     },
+
     mounted() {
         console.log(this.auth.id);
         this.read();
@@ -120,6 +132,14 @@ export default {
         Echo.private(`chat.${this.friend.session.id}`)
             .listen('BlockedEvent', e => {
                this.friend.session.blocked = e.blocked;
+            })
+
+        Echo.private(`chat.${this.friend.session.id}`)
+            .listenForWhisper('typing', e => {
+                this.isTyping = true;
+                setTimeout(() => {
+                    this.isTyping = false;
+                }, 2000);
             })
     }
 }
