@@ -18,7 +18,7 @@
             </b-col>
             <b-col md="8">
                     <span v-for="friend in friends" :key="friend.id" v-if="friend.session">
-                        <message-component :friend="friend" v-if="friend.session.open" @closeChat="friend.session.open = false"></message-component>
+                        <message-component :friend="friend" v-if="friend.session.open" @closeChat="friend.session.open = false" :auth="auth"></message-component>
                     </span>
             </b-col>
         </b-row>
@@ -29,6 +29,7 @@
 <script>
 import MessageComponent from "./MessageComponent";
 export default {
+    props: ['auth'],
     data() {
         return {
             friends: []

@@ -11,6 +11,9 @@ class Session extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'blocked' => 'boolean'
+    ];
     public function chats()
     {
         return $this->hasManyThrough(Chat::class, Message::class);
@@ -29,5 +32,15 @@ class Session extends Model
     public function deleteMessages()
     {
         $this->messages()->delete();
+    }
+
+    public function block()
+    {
+        $this->update(['blocked' => true, 'blocked_by_id' => auth()->id()]);
+    }
+
+    public function unblock()
+    {
+        $this->update(['blocked' => false, 'blocked_by_id' => null]);
     }
 }

@@ -2,7 +2,7 @@
         <b-card>
             <b-card-header>
                 {{ friend.name }}
-                 <span v-if="blocked" style="color: red">You have blocked this user</span>
+                 <span v-if="blocked" style="color: red">(Blocked)</span>
                 <b-icon-x style="float: right" @click="closeChat(friend)"></b-icon-x>
 
 
@@ -10,9 +10,9 @@
                     <template #button-content>
                         <b-icon-three-dots-vertical   ></b-icon-three-dots-vertical>
                     </template>
-                    <b-dropdown-item @click="blocked = true" v-if="!blocked">Block</b-dropdown-item>
+                    <b-dropdown-item @click="blockUser" v-if="blocked === false">Block</b-dropdown-item>
 
-                    <b-dropdown-item @click="blocked = false" v-else>Unblock</b-dropdown-item>
+                    <b-dropdown-item @click="unBlockUser" v-if="friend.session.blocked === true && friend.session.blocked_by_id === auth">Unblock</b-dropdown-item>
                     <b-dropdown-item @click="clearChats">Clear</b-dropdown-item>
                 </b-dropdown>
             </b-card-header>
@@ -39,12 +39,16 @@
 </template>
 <script>
 export default {
-    props: ['friend'],
+    props: ['friend', 'auth'],
     data() {
         return {
             message: '',
-            messages: [],
-            blocked: false
+            messages: []
+        }
+    },
+    computed: {
+        blocked() {
+            return this.friend.session.blocked;
         }
     },
     methods: {
@@ -83,9 +87,20 @@ export default {
             this.messages = [];
             axios.get(`/session/${this.friend.session.id}/clear`)
                 .then(res => console.log(res))
+        },
+        blockUser() {
+            this.friend.session.blocked = true;
+            axios.patch(`/session/${this.friend.session.id}/block`)
+                .then(res => this.friend.session.blocked_by_id = this.auth);
+        },
+        unBlockUser() {
+            this.friend.session.blocked = false;
+            axios.patch(`/session/${this.friend.session.id}/unblock`)
+                .then(res => this.friend.session.blocked_by_id = null);
         }
     },
     mounted() {
+        console.log(this.auth.id);
         this.read();
         this.getChats();
 
@@ -100,6 +115,11 @@ export default {
                 this.messages.forEach(msg => {
                     msg.id === e.chat.id ? msg.read_at = e.chat.read_at : '';
                 })
+            })
+
+        Echo.private(`chat.${this.friend.session.id}`)
+            .listen('BlockedEvent', e => {
+               this.friend.session.blocked = e.blocked;
             })
     }
 }

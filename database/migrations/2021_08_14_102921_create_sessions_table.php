@@ -17,6 +17,8 @@ class CreateSessionsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user1_id');
             $table->unsignedBigInteger('user2_id');
+            $table->boolean('blocked')->default(false);
+            $table->unsignedBigInteger('blocked_by_id')->nullable();
             $table->timestamps();
         });
     }

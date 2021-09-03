@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlockController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SessionController;
@@ -32,3 +33,6 @@ Route::post('/chat', [ChatController::class, 'chat']);
 Route::get('/chats/{session}', [ChatController::class, 'chats']);
 Route::patch('/session/{session}/mark-as-read', [SessionController::class, 'read']);
 Route::get('/session/{session}/clear', [ChatController::class, 'clear']);
+
+Route::patch('/session/{session}/block', [BlockController::class, 'block']);
+Route::patch('/session/{session}/unblock', [BlockController::class, 'unblock']);
